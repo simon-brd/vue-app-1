@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>jQuery - Vue.js</title>
+    <!-- Latest compiled and minified CSS -->
+
+
+</head>
+<body>
+
+<!-- JQuery ici  -->
+<h1>jQuery</h1>
+    <div>
+        <p>Length: <span id="length">0</span></p>
+        <ul id="list"></ul>
+        <button id="add">add</button>
+    </div>
+
+
+<!-- Vue ici  -->
+
+<h1>Vue.js</h1>
+  <div id="app">
+      <p>Length: {{ length }}</p>
+      <ul>
+        <li v-for="(item, i) in list" :key="item">{{ item }}
+          <button @click="list.splice(i, 1)">remove</button>
+      </li>
+  </ul>
+  <button @click="addItem">add</button>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+
+
+<script>
+(function() {
+  var counter = 0
+  var list = ['Apple', 'Banana', 'Strawberry']
+
+  init()
+
+  $(document).on('click', '#add', function() {
+    addItem('Orange' + (++counter).toString())
+  })
+  $(document).on('click', '.remove', function(event) {
+    $(event.target).parent().remove()
+    updateLength()
+  })
+
+  function init() {
+    for (var i = 0; i < list.length; i++) {
+      addItem(list[i])
+    }
+  }
+
+  function addItem(name) {
+    $('#list').append('<li>' + name + ' <button class="remove">remove</button></li>')
+    updateLength()
+  }
+
+  function updateLength() {
+    $('#length').text($('#list li').length)
+  }
+})()
+
+new Vue({
+  el: '#app',
+  data: {
+    counter: 0,
+    list: ['Apple', 'Banana', 'Strawberry']
+  },
+  computed: {
+    length: function() {
+      return this.list.length
+    }
+  },
+  methods: {
+    addItem: function() {
+      this.list.push('Orange' + (++this.counter).toString())
+    }
+  }
+})
+
+</script>
+</body>
+</html>
