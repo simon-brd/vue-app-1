@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>NBA</title>
+    <script
+  src="https://code.jquery.com/jquery-3.5.1.js"
+  integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc="
+  crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+    <link href="nba_styles.css" rel="stylesheet" >
+    <script type="text/x-template" id="modal-template">
+        <transition name="modal">
+          <div class="modal-mask">
+            <div class="modal-wrapper">
+              <div class="modal-container">
+                <div class="modal-header">
+                  Liste des joueurs de {{teamName}}
+                </div>
+                <div class="modal-body">
+                  <div class="players">
+                      <div class="player" v-for="player in players">
+                        <img :src="player.PhotoUrl" >
+                          <div class="name">{{player.FanDuelName}}</div>
+                          <div class="jersey">n°{{player.Jersey}}</div>
+                          <div class="category">{{player.Position}}</div>
+                      </div>
+                  </div>
+                </div>
+  
+                <div class="modal-footer">
+                    <button class="modal-default-button" @click="$emit('close')" >
+                      OK
+                    </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </transition>
+      </script>
+</head>
+<body>
+    <section id="nba">
+        <h1>NBA</h1>
+        <div class="listing">
+            <div class="row justify-content-center">
+                <div v-for="(team, i) in teams" :key="i" class="team" @click="getPlayers(team.Key)">
+                    <div class="inner-img">
+                        <img :src="team.WikipediaLogoUrl">
+                    </div>
+                    <p class="name">{{team.City}} {{team.Name}}</p>
+                    <div class="division">
+                        <div class="item">
+                            {{team.Conference}}
+                        </div>
+                        <div class="item">{{team.Division}}</div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+        <modal v-if="showModal" @close="showModal = false" :players="players">
+        </modal>
+    </section>
+    
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.0.5/vue.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js" integrity="sha512-bZS47S7sPOxkjU/4Bt0zrhEtWx0y0CRkhEp8IckzK+ltifIIE9EMIMTuT/mEzoIMewUINruDBIR/jJnbguonqQ==" crossorigin="anonymous"></script>
+<script>
+
+    Vue.component("modal", {
+        template: "#modal-template",
+        props: ['players','teamName']
+    });
+
+var nba = new Vue({
+    el: '#nba',
+    data: {
+        teams: [],
+        players: [],
+        showModal: false
+    },
+    created: function() {
+        this.getTeams()
+    },
+    methods: {
+    	getTeams: function () {
+            axios
+                .get('https://api.sportsdata.io/v3/nba/scores/json/teams',{
+                    headers: {
+                        'Ocp-Apim-Subscription-Key': '7c82871942dc4ba7b9898e5e8ccc7870'
+                    }
+                })
+                .then(response => (
+                    this.teams = response.data
+                    )
+                )
+        },
+        getPlayers: function (teamKey) {
+            this.showModal = true;
+            axios
+                .get('https://api.sportsdata.io/v3/nba/stats/json/Players/'+ teamKey,{
+                    headers: {
+                        'Ocp-Apim-Subscription-Key': '7c82871942dc4ba7b9898e5e8ccc7870'
+                    }
+                })
+                .then(response => (
+                    this.players = response.data,
+                    console.log(this.players)
+                    )
+                )
+        }
+    },
+});
+	
+</script>
+</body>
+</html>
