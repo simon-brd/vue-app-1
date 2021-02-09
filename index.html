@@ -18,7 +18,7 @@
             <div class="modal-wrapper">
               <div class="modal-container">
                 <div class="modal-header">
-                  Liste des joueurs de {{teamName}}
+                  Liste des joueurs de {{team}}
                 </div>
                 <div class="modal-body">
                   <div class="players">
@@ -62,7 +62,7 @@
                 </div>
             </div>
         </div>
-        <modal v-if="showModal" @close="showModal = false" :players="players">
+        <modal v-if="showModal" @close="showModal = false" :players="players" :team="selectedTeam">
         </modal>
     </section>
     
@@ -72,7 +72,7 @@
 
     Vue.component("modal", {
         template: "#modal-template",
-        props: ['players','teamName']
+        props: ['players','team']
     });
 
 var nba = new Vue({
@@ -80,7 +80,8 @@ var nba = new Vue({
     data: {
         teams: [],
         players: [],
-        showModal: false
+        showModal: false,
+        selectedTeam: '',
     },
     created: function() {
         this.getTeams()
@@ -98,19 +99,17 @@ var nba = new Vue({
                     )
                 )
         },
-        getPlayers: function (teamKey) {
-            this.showModal = true;
-            axios
+        getPlayers: async function (teamKey) {
+            
+            const response = await axios
                 .get('https://api.sportsdata.io/v3/nba/stats/json/Players/'+ teamKey,{
                     headers: {
                         'Ocp-Apim-Subscription-Key': '7c82871942dc4ba7b9898e5e8ccc7870'
                     }
-                })
-                .then(response => (
-                    this.players = response.data,
-                    console.log(this.players)
-                    )
-                )
+                });
+            this.players = response.data;
+            this.selectedTeam = response.data[0].Team;
+            this.showModal = true;
         }
     },
 });
